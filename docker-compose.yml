@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  ashare-llm-analyst:
+    image: ashare-llm-analyst:latest
+    container_name: ashare-llm-analyst
+    volumes:
+      - ./.env:/app/.env
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Asia/Shanghai
+    restart: no
