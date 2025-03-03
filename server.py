@@ -8,6 +8,16 @@ from main import StockAnalyzer
 app = Flask(__name__)
 load_dotenv()  # 加载.env文件
 
+# 验证环境变量加载
+app.logger.info("正在验证环境变量加载...")
+env_path = os.path.join(os.getcwd(), '.env')
+app.logger.info(f"环境变量文件路径: {env_path}")
+app.logger.info(f"环境变量文件是否存在: {os.path.exists(env_path)}")
+
+# 读取并打印所有STOCK_开头的环境变量
+stock_vars = {k: v for k, v in os.environ.items() if k.startswith('STOCK_')}
+app.logger.info(f"加载的股票环境变量: {stock_vars}")
+
 # 创建logs目录（如果不存在）
 if not os.path.exists('logs'):
     os.makedirs('logs')
@@ -56,12 +66,19 @@ def static_files(path):
 @app.route('/get_stocks', methods=['GET'])
 def get_stocks():
     try:
+        # 添加调试日志
+        app.logger.info("开始获取股票信息")
+        app.logger.info(f"当前所有环境变量: {dict(os.environ)}")
+        
         stock_info = {}
         for key, value in os.environ.items():
+            app.logger.info(f"检查环境变量: {key}")
             if key.startswith('STOCK_'):
                 stock_name = key.replace('STOCK_', '')
                 stock_info[stock_name] = value
-        app.logger.info("成功获取股票信息")
+                app.logger.info(f"找到股票信息: {stock_name} = {value}")
+        
+        app.logger.info(f"最终获取到的股票信息: {stock_info}")
         return jsonify(stock_info)
     except Exception as e:
         app.logger.error(f"获取股票信息失败: {str(e)}")
