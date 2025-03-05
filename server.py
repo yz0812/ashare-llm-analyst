@@ -68,6 +68,15 @@ def get_stocks():
     try:
         # 添加调试日志
         app.logger.info("开始获取股票信息")
+        
+        # 先清理现有的STOCK_环境变量
+        for key in list(os.environ.keys()):
+            if key.startswith('STOCK_'):
+                del os.environ[key]
+        
+        # 重新加载.env文件
+        load_dotenv(override=True)
+        
         app.logger.info(f"当前所有环境变量: {dict(os.environ)}")
         
         stock_info = {}
@@ -90,6 +99,11 @@ def save_stocks():
         stock_info = request.json
         app.logger.info(f"保存股票信息: {stock_info}")
         
+        # 首先清理所有已存在的STOCK_环境变量
+        for key in list(os.environ.keys()):
+            if key.startswith('STOCK_'):
+                del os.environ[key]
+        
         env_content = []
         if os.path.exists('.env'):
             with open('.env', 'r', encoding='utf-8') as f:
@@ -98,13 +112,17 @@ def save_stocks():
                     if not line.strip().startswith('STOCK_'):
                         env_content.append(line.strip())
         
+        # 添加新的股票信息
         for name, code in stock_info.items():
             env_content.append(f'STOCK_{name}={code}')
+            os.environ[f'STOCK_{name}'] = code
         
+        # 保存到.env文件
         with open('.env', 'w', encoding='utf-8') as f:
             f.write('\n'.join(env_content))
         
         app.logger.info("股票信息保存成功")
+        app.logger.info(f"当前环境变量中的股票信息: {[k for k in os.environ.keys() if k.startswith('STOCK_')]}")
         return jsonify({"status": "success"})
     
     except Exception as e:

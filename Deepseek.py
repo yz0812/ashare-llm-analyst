@@ -468,7 +468,7 @@ class DeepseekAnalyzer:
             try:
                 analysis_text = response.choices[0].message.content
                 logger.info("成功获取分析文本内容")
-                logger.info("分析文本:", analysis_text)
+                logger.info("分析文本: %s", analysis_text)
             except Exception as text_e:
                 logger.error(f"获取分析文本失败: {str(text_e)}")
                 raise
